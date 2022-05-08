@@ -62,7 +62,7 @@ public class AuthController {
             session.attribute(STATE, state);
 
             return "<!DOCTYPE html><html><body>" +
-                    "<a href=\"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id="+clientId+"&redirect_uri=http://localhost:4567/auth/twitch/callback&scope=chat:read chat:edit moderator:manage:banned_users moderation:read" +
+                    "<a href=\"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id="+clientId+"&redirect_uri=http://localhost:"+Spark.port()+"/auth/twitch/callback&scope=chat:read chat:edit moderator:manage:banned_users moderation:read" +
                     "&state="+state+"\">Click here to Authorize</a>" +
                     "</body></html>";
         });
