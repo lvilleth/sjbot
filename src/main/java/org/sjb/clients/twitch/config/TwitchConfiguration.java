@@ -16,18 +16,18 @@ public class TwitchConfiguration {
     private final String clientId;
     @NonNull @JsonProperty("client_secret")
     private final String clientSecret;
-    @NonNull @JsonProperty("macro")
-    private final Map<String,String> macro;
+    @NonNull @JsonProperty("macros")
+    private final Map<String,String> macros;
 
     @JsonCreator
     public TwitchConfiguration(
             @NonNull @JsonProperty("client_id") String clientId,
             @NonNull @JsonProperty("client_secret") String clientSecret,
-            @NonNull @JsonProperty("macro") Map<String, String> macro
+            @NonNull @JsonProperty("macros") Map<String, String> macros
     ){
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.macro = macro;
+        this.macros = macros;
     }
 
 }

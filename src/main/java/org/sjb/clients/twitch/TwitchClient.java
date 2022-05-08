@@ -44,7 +44,7 @@ public class TwitchClient implements WebSocket.Listener {
 
     public TwitchClient(HttpClient httpClient, TwitchConfiguration twitchConfiguration) {
         this.httpClient = httpClient;
-        this.messageHandler = new TwitchMessageHandler(new TwitchCommandExecutor());
+        this.messageHandler = new TwitchMessageHandler(new TwitchCommandExecutor(), twitchConfiguration);
         this.configuration = twitchConfiguration;
     }
 
@@ -59,6 +59,11 @@ public class TwitchClient implements WebSocket.Listener {
                     return socket;
                 })
                 .join();
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+        messageHandler.setBotName(login);
     }
 
     public URI getServerUri(){

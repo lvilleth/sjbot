@@ -3,7 +3,8 @@
     "client_id": "",
     "client_secret": "",
     "macro": {
-      "hello": "world!"
+      "!hello": "world!",
+      "!ghello": "$Gworld to all!"
     }
   }
 }
