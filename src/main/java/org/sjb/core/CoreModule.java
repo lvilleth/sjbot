@@ -8,6 +8,7 @@ import com.google.inject.Provides;
 import org.sjb.core.config.AppConfiguration;
 import org.sjb.core.utils.FileUtils;
 
+import javax.inject.Singleton;
 import java.net.http.HttpClient;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -22,7 +23,7 @@ public class CoreModule extends AbstractModule {
     protected void configure() {
     }
 
-    @Provides
+    @Provides @Singleton
     public ObjectMapper objectMapper(){
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -30,7 +31,7 @@ public class CoreModule extends AbstractModule {
         return objectMapper;
     }
 
-    @Provides
+    @Provides @Singleton
     public AppConfiguration appConfiguration(){
         Properties props = FileUtils.readProperties();
         String profile = props.getProperty("profile");
@@ -40,7 +41,7 @@ public class CoreModule extends AbstractModule {
         return AppConfiguration.build(props);
     }
 
-    @Provides
+    @Provides @Singleton
     public HttpClient httpClient(){
         return  HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
@@ -49,7 +50,7 @@ public class CoreModule extends AbstractModule {
                 .build();
     }
 
-    @Provides
+    @Provides @Singleton
     public Random random() {
         return new SecureRandom();
     }

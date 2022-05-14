@@ -12,6 +12,8 @@ public class TwitchConfiguration {
 
     public static final String KEY = "twitch";
 
+    @JsonProperty("login")
+    private String login;
     @NonNull @JsonProperty("client_id")
     private final String clientId;
     @NonNull @JsonProperty("client_secret")
@@ -23,11 +25,13 @@ public class TwitchConfiguration {
     public TwitchConfiguration(
             @NonNull @JsonProperty("client_id") String clientId,
             @NonNull @JsonProperty("client_secret") String clientSecret,
-            @NonNull @JsonProperty("macros") Map<String, String> macros
+            @NonNull @JsonProperty("macros") Map<String, String> macros,
+            @JsonProperty("login") String login
     ){
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.macros = macros;
+        this.login = login;
     }
 
 }

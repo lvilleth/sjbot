@@ -1,4 +1,4 @@
-package org.sjb.clients.twitch;
+package org.sjb.clients.twitch.dao;
 
 import org.sjb.clients.twitch.models.TwitchEntity;
 import org.sjb.core.persistence.AbstractDao;

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.sjb.clients.twitch.commands.TwitchCommandExecutor;
 import org.sjb.clients.twitch.config.TwitchConfiguration;
+import org.sjb.clients.twitch.services.TwitchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,8 @@ public class TwitchClient implements WebSocket.Listener {
     private String login;
 
     private final TwitchMessageHandler messageHandler;
+    @Getter
+    private final TwitchService service;
 
     /**
      *              WebSocket clients               IRC clients
@@ -42,10 +45,16 @@ public class TwitchClient implements WebSocket.Listener {
     @Getter
     private final String twitchWebSocketUrl = "wss://irc-ws.chat.twitch.tv:443";
 
-    public TwitchClient(HttpClient httpClient, TwitchConfiguration twitchConfiguration) {
+    public TwitchClient(HttpClient httpClient, TwitchConfiguration twitchConfiguration, TwitchService twitchService) {
         this.httpClient = httpClient;
         this.messageHandler = new TwitchMessageHandler(new TwitchCommandExecutor(), twitchConfiguration);
         this.configuration = twitchConfiguration;
+        this.service = twitchService;
+
+        String login = configuration.getLogin();
+        if(nonNull(login) && !login.isBlank()){
+            service.refreshToken(login).ifPresent(token -> connect(login, token));
+        }
     }
 
     public void connect(String login, String token){
