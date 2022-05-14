@@ -12,8 +12,8 @@ public abstract class Constants {
     public static final String CLIENT_ID = "client_id";
     public static final String CLIENT_SECRET = "client_secret";
 
+    public static final String DEFAULT = "default";
     public static final String PROPERTIES_FILENAME = "app.properties";
-    public static final String CONFIG_FILENAME = "config.json";
     public static final String CONFIG_KEY = "config";
 
 }

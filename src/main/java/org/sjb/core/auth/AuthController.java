@@ -3,12 +3,15 @@ package org.sjb.core.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sjb.clients.ClientManager;
 import org.sjb.clients.twitch.TwitchClient;
+import org.sjb.clients.twitch.TwitchService;
 import org.sjb.core.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Session;
 import spark.Spark;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -25,6 +28,7 @@ import static java.util.Objects.isNull;
 import static org.sjb.core.utils.Constants.*;
 import static spark.Spark.get;
 
+@Singleton
 public class AuthController {
 
     private final Logger log = LoggerFactory.getLogger(AuthController.class);
@@ -33,11 +37,14 @@ public class AuthController {
     private final ObjectMapper mapper;
     private final Random random;
     private final ClientManager clientManager;
+    private final TwitchService twitchService;
 
-    public AuthController(HttpClient httpClient, ObjectMapper objectMapper, ClientManager clientManager){
+    @Inject
+    public AuthController(HttpClient httpClient, ObjectMapper objectMapper, ClientManager clientManager, TwitchService twitchService, Random random){
         this.httpClient = httpClient;
         this.mapper = objectMapper;
-        this.random = new Random();
+        this.twitchService = twitchService;
+        this.random = random;
         this.clientManager = clientManager;
     }
 
@@ -127,9 +134,13 @@ public class AuthController {
         ));
         Storage.getInstance().set(storeKey, storeValue);
 
+        // persist refresh token
+        String login = (String)validateJson.get("login");
+        twitchService.save(login, (String)authJson.get(REFRESH_TOKEN));
+
         // connect to twitch with the user information
         TwitchClient twitch = clientManager.getTwitchClient();
-        twitch.connect((String)validateJson.get("login"), (String)authJson.get(ACCESS_TOKEN));
+        twitch.connect(login, (String)authJson.get(ACCESS_TOKEN));
     }
 
     private HashMap<String, Object> twitchValidateToken(String token) throws IOException, InterruptedException {

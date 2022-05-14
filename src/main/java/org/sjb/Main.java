@@ -1,42 +1,46 @@
 package org.sjb;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import org.sjb.clients.ClientManager;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.sjb.clients.twitch.TwitchModule;
+import org.sjb.core.CoreModule;
 import org.sjb.core.auth.AuthController;
-import org.sjb.core.config.JsonConfigurationProvider;
+import org.sjb.core.persistence.PersistenceModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Spark;
 
-import java.net.http.HttpClient;
-import java.time.Duration;
+import java.util.UUID;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
-        spark();
+    private final Logger log = LoggerFactory.getLogger(Main.class);
 
-        HttpClient httpClient = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofSeconds(60))
-                .build();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        JsonConfigurationProvider jcp = new JsonConfigurationProvider(objectMapper);
-        jcp.config();
-
-        ClientManager clientManager = new ClientManager(httpClient, objectMapper);
-        AuthController auth = new AuthController(httpClient, objectMapper, clientManager);
-        auth.setup();
+    public static void main(String[] args) {
+        bootstrap();
     }
 
     private static void spark(){
         Spark.port(8844);
         Spark.init();
+    }
+
+    private static void bootstrap(){
+        // Injector with all the necessary dependencies
+        Injector injector = Guice.createInjector(
+                new CoreModule(),
+                new PersistenceModule(),
+                new TwitchModule()
+        );
+        // Bootstrap the application
+        // start the server
+        injector.getInstance(Main.class).start(injector);
+    }
+
+    public void start(Injector injector){
+        log.info("Application Bootstrapped with ID " + UUID.randomUUID());
+        spark();
+        injector.getInstance(AuthController.class).setup();
     }
 
 }
