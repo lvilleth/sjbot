@@ -1,33 +1,70 @@
 package org.sjb.clients.twitch.services;
 
 import org.sjb.clients.twitch.config.TwitchConfiguration;
+import org.sjb.clients.twitch.dao.TwitchBotAccountDao;
 import org.sjb.clients.twitch.dao.TwitchDao;
+import org.sjb.clients.twitch.models.TwitchBotAccountEntity;
 import org.sjb.clients.twitch.models.TwitchEntity;
 import org.sjb.clients.twitch.models.dto.OAuthResponse;
 import org.sjb.clients.twitch.models.dto.OAuthSuccess;
 import org.sjb.clients.twitch.models.dto.OAuthUserInfo;
+import org.sjb.clients.twitch.models.dto.external.SuspectedBotInsightResponse;
 import org.sjb.core.Storage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.NoResultException;
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.sjb.core.utils.Constants.*;
 
 @Singleton
 public class TwitchService {
 
+    private final Logger log = LoggerFactory.getLogger(TwitchService.class);
+
     private final TwitchDao twitchDao;
+    private final TwitchBotAccountDao twitchBotAccountDao;
     private final TwitchAuthService authService;
+    private final ExternalApiService extApiService;
     private final TwitchConfiguration twitchConfiguration;
 
     @Inject
-    public TwitchService(TwitchDao twitchDao, TwitchAuthService authService, TwitchConfiguration twitchConfiguration) {
+    public TwitchService(TwitchDao twitchDao, TwitchBotAccountDao twitchBotAccountDao, TwitchAuthService authService, ExternalApiService extApiService, TwitchConfiguration twitchConfiguration) {
         this.twitchDao = twitchDao;
+        this.twitchBotAccountDao = twitchBotAccountDao;
         this.authService = authService;
+        this.extApiService = extApiService;
         this.twitchConfiguration = twitchConfiguration;
+        if(isBotAccountListOutdated()) {
+            updateBotAccountList();
+        }
+    }
+
+    private boolean isBotAccountListOutdated() {
+        return twitchBotAccountDao.oldestUpdate().map(t ->
+                Instant.now(Clock.systemUTC()).isAfter(t.plus(30, ChronoUnit.DAYS))
+        ).orElse(true);
+    }
+
+    public void updateBotAccountList() {
+        try {
+           SuspectedBotInsightResponse response = extApiService.getSuspectedBotAccountList();
+           List<TwitchBotAccountEntity> entities = response.getBots().stream().map( b ->
+                   TwitchBotAccountEntity.builder((String)b.get(0))
+           ).collect(Collectors.toList());
+           twitchBotAccountDao.save(entities);
+           log.debug("Size of suspected bot accounts: "+ entities.size());
+        } catch (Exception e){
+            log.error("Error updating bot account list", e);
+        }
     }
 
     public List<TwitchEntity> list() {

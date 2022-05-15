@@ -4,7 +4,7 @@ import static org.sjb.core.exceptions.CodeErrors.*;
 
 public class ClientAuthorizationError extends BasicException{
 
-    private static final String MESSAGE = "Error during authorization with remote server";
+    public static final String MESSAGE = "Error during authorization with remote server";
 
     public ClientAuthorizationError() {
         super(UNAUTHORIZED, MESSAGE);

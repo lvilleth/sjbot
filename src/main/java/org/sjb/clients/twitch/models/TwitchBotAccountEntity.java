@@ -1,6 +1,6 @@
 package org.sjb.clients.twitch.models;
 
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Data
+@AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(builderMethodName = "")
 @Entity
 @Table(name = "twitch_bot_account")
 public class TwitchBotAccountEntity {
@@ -32,4 +34,9 @@ public class TwitchBotAccountEntity {
     private void preUpdate() {
         this.updated = Instant.now(Clock.systemUTC());
     }
+
+    public static TwitchBotAccountEntity builder(String username){
+        return new TwitchBotAccountEntityBuilder().username(username).build();
+    }
+
 }
