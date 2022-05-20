@@ -20,11 +20,11 @@ public class ChatReplyCommand extends AbstractCommand implements AsyncCommand<We
     private final String botName;
 
     public ChatReplyCommand(IRCMessage ircMsg, WebSocket socket, String macro, String botName) {
+        super("PRIVMSG");
         this.ircMsg = ircMsg;
         this.socket = socket;
         this.macro = macro;
         this.botName = botName;
-        this.name = "PRIVMSG";
     }
 
 

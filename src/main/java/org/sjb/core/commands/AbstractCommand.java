@@ -9,7 +9,11 @@ public abstract class AbstractCommand {
     protected final Logger log = LoggerFactory.getLogger(AbstractCommand.class);
 
     @Getter
-    protected String name;
+    protected final String name;
+
+    protected AbstractCommand(String name) {
+        this.name = name;
+    }
 
     @Override
     public String toString() {

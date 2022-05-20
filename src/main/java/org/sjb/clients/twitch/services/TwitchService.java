@@ -155,4 +155,10 @@ public class TwitchService {
         return Optional.ofNullable(oAuthSuccess);
     }
 
+    public Set<String> suspectedBotsFrom(Set<String> usernames) {
+        return twitchBotAccountDao.listByUsername(usernames)
+                .stream().map(TwitchBotAccountEntity::getUsername)
+                .collect(Collectors.toSet());
+    }
+
 }

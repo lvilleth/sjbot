@@ -14,6 +14,7 @@ import javax.persistence.NoResultException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Singleton
@@ -63,6 +64,24 @@ public class TwitchBotAccountDao extends AbstractDao<TwitchBotAccountEntity, UUI
         } finally {
             em.close();
         }
+    }
+
+    public List<TwitchBotAccountEntity> listByUsername(Set<String> usernames) {
+        List<TwitchBotAccountEntity> result = null;
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            result = em.createQuery("SELECT t from TwitchBotAccountEntity t where t.username in (:usernames)"
+                    , TwitchBotAccountEntity.class)
+            .setParameter("usernames", usernames)
+            .getResultList();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+        return Optional.ofNullable(result).orElse(List.of());
     }
 
 }

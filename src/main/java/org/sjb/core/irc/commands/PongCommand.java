@@ -20,9 +20,9 @@ public class PongCommand extends AbstractCommand implements AsyncCommand<WebSock
      * @param socket websocket to relay the response
      */
     public PongCommand(IRCMessage ping, WebSocket socket){
+        super("PONG");
         this.socket = socket;
         this.ping = ping;
-        super.name = "PONG";
     }
 
     @Override

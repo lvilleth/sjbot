@@ -38,7 +38,7 @@ public class TwitchModule extends AbstractModule {
             Map<String, Object> json = (Map<String, Object>) config.get(TwitchConfiguration.KEY);
             twitchConfiguration = mapper.convertValue(json, TwitchConfiguration.class);
         } else {
-            twitchConfiguration = new TwitchConfiguration("", "", new HashMap<>(),null);
+            twitchConfiguration = new TwitchConfiguration("", "", new HashMap<>(),null, null);
         }
         return twitchConfiguration;
     }

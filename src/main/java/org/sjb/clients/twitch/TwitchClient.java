@@ -47,7 +47,7 @@ public class TwitchClient implements WebSocket.Listener {
 
     public TwitchClient(HttpClient httpClient, TwitchConfiguration twitchConfiguration, TwitchService twitchService) {
         this.httpClient = httpClient;
-        this.messageHandler = new TwitchMessageHandler(new TwitchCommandExecutor(), twitchConfiguration);
+        this.messageHandler = new TwitchMessageHandler(new TwitchCommandExecutor(), twitchConfiguration, twitchService);
         this.configuration = twitchConfiguration;
         this.service = twitchService;
 

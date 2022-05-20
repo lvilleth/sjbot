@@ -2,14 +2,17 @@ package org.sjb.clients.twitch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.sjb.clients.twitch.commands.BanUserCommand;
 import org.sjb.clients.twitch.commands.ChatReplyCommand;
 import org.sjb.clients.twitch.commands.TwitchCommandExecutor;
 import org.sjb.clients.twitch.config.TwitchConfiguration;
+import org.sjb.clients.twitch.services.TwitchService;
 import org.sjb.core.irc.IRCMessage;
 import org.sjb.core.irc.commands.PongCommand;
 
 import java.net.http.WebSocket;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
@@ -18,6 +21,7 @@ public class TwitchMessageHandler {
 
     private final TwitchCommandExecutor commandExecutor;
     private final TwitchConfiguration twitchConfig;
+    private final TwitchService twitchService;
     @Setter
     private String botName;
 
@@ -55,6 +59,7 @@ public class TwitchMessageHandler {
                      * :ronni.tmi.twitch.tv 366 ronni #ronni :End of /NAMES list
                      *
                      */
+                    join(msg, socket);
                     break;
                 case "353":
                     /**
@@ -95,7 +100,13 @@ public class TwitchMessageHandler {
     }
 
     private void join(IRCMessage msg, WebSocket socket){
-
+        if(twitchConfig.getBanSuspectedBots() && !botName.equals(msg.getNick())){
+            Set<String> susBots = twitchService.suspectedBotsFrom(Set.of(msg.getNick()));
+            if(susBots.contains(msg.getNick())) {
+                BanUserCommand command = new BanUserCommand(msg, socket, "User suspected of being a bot");
+                commandExecutor.executeCommand(command);
+            }
+        }
     }
 
     private void part(IRCMessage msg, WebSocket socket){
